@@ -15,11 +15,12 @@ clock = pygame.time.Clock()
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-snakeDimension = 10
-snake = []
-
 x = 100
 y = 100
+
+snakeDimension = 10
+snake = []
+snakeLength = 1
 
 sVel = 10
 
@@ -42,13 +43,18 @@ def drawSnake(x, y):
 
     pygame.draw.rect(win, (BLACK), (x, y, snakeDimension, snakeDimension))
 
-def drawScreen(x, y, fx, fy):
+def die():
+    global run
+    run = False
+
+def drawScreen(x, y, fx, fy, snakeLength, snake):
 
     win.fill(WHITE)
 
     food(fx, fy)
 
-    drawSnake(x, y)
+    for snk in snake:
+        drawSnake(snk[0], snk[1])
 
     pygame.display.update()
 
@@ -67,20 +73,31 @@ while run:
                 sHor = -1
                 sVer = 0
 
-            if event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT:
                 sHor = 1
                 sVer = 0
 
-            if event.key == pygame.K_UP:
+            elif event.key == pygame.K_UP:
                 sVer = -1
                 sHor = 0
 
-            if event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_DOWN:
                 sVer = 1
                 sHor = 0
 
     x += sHor * sVel
     y += sVer * sVel
+
+    if (x > W - snakeDimension or x < 0 or y > H - snakeDimension or y < 0):
+        die()
+
+    snakeHead = []
+    snakeHead.append(x)
+    snakeHead.append(y)
+    snake.append(snakeHead)
+
+    if len(snake) > snakeLength:
+        del snake[0]
 
     if (fx == x and fy == y):
         rx = random.randint(0, W - snakeDimension)
@@ -89,4 +106,6 @@ while run:
         ry = random.randint(0, H - snakeDimension)
         fy = round(ry / snakeDimension) * snakeDimension
 
-    drawScreen(x, y, fx, fy)
+        snakeLength += 1
+
+    drawScreen(x, y, fx, fy, snakeLength, snake)
