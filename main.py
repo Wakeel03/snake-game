@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 
@@ -25,15 +26,27 @@ sVel = 10
 sHor = 1
 sVer = 0
 
+rx = random.randint(0, W - snakeDimension)
+fx = round(rx / snakeDimension) * snakeDimension
+
+ry = random.randint(0, H - snakeDimension)
+fy = round(ry / snakeDimension) * snakeDimension
+
 run = True
+
+def food(fx, fy):
+    
+    pygame.draw.rect(win, (BLACK), (fx, fy, snakeDimension, snakeDimension))
 
 def drawSnake(x, y):
 
     pygame.draw.rect(win, (BLACK), (x, y, snakeDimension, snakeDimension))
 
-def drawScreen(x, y):
+def drawScreen(x, y, fx, fy):
 
     win.fill(WHITE)
+
+    food(fx, fy)
 
     drawSnake(x, y)
 
@@ -69,4 +82,11 @@ while run:
     x += sHor * sVel
     y += sVer * sVel
 
-    drawScreen(x, y)
+    if (fx == x and fy == y):
+        rx = random.randint(0, W - snakeDimension)
+        fx = round(rx / snakeDimension) * snakeDimension
+
+        ry = random.randint(0, H - snakeDimension)
+        fy = round(ry / snakeDimension) * snakeDimension
+
+    drawScreen(x, y, fx, fy)
