@@ -15,25 +15,10 @@ clock = pygame.time.Clock()
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-x = 100
-y = 100
-
 snakeDimension = 10
-snake = []
-snakeLength = 1
 
-sVel = 10
+font = pygame.font.SysFont("comicsans", 30, True, False)
 
-sHor = 1
-sVer = 0
-
-rx = random.randint(0, W - snakeDimension)
-fx = round(rx / snakeDimension) * snakeDimension
-
-ry = random.randint(0, H - snakeDimension)
-fy = round(ry / snakeDimension) * snakeDimension
-
-run = True
 
 def food(fx, fy):
     
@@ -43,9 +28,42 @@ def drawSnake(x, y):
 
     pygame.draw.rect(win, (BLACK), (x, y, snakeDimension, snakeDimension))
 
-def die():
-    global run
-    run = False
+def text_object(msg, color):
+    
+    txtSurf = font.render(msg, True, color)
+    return txtSurf, txtSurf.get_rect()
+
+def display_text(msg, color, y_displace = 0):
+    
+    textSurf, textRect = text_object(msg, color)
+    textRect.center = W/2, H/2 + y_displace
+
+    win.blit(textSurf, textRect)
+
+def die(score):
+
+    die = True
+    
+    while die:
+
+        clock.tick(5)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+                quit()
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    die = False
+                    main()
+
+        win.fill(WHITE)
+        display_text("Your Score is " + str(score), BLACK, y_displace = 20)
+        display_text("Press SPACE BAR to continue", BLACK, y_displace = -20)
+
+        pygame.display.update()
 
 def drawScreen(x, y, fx, fy, snakeLength, snake):
 
@@ -58,54 +76,81 @@ def drawScreen(x, y, fx, fy, snakeLength, snake):
 
     pygame.display.update()
 
-while run:
+def main():
 
-    clock.tick(fps)
+    x = 100
+    y = 100
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    snake = []
+    snakeLength = 1
+
+    sVel = 10
+
+    sHor = 1
+    sVer = 0
+
+    rx = random.randint(0, W - snakeDimension)
+    fx = round(rx / snakeDimension) * snakeDimension
+
+    ry = random.randint(0, H - snakeDimension)
+    fy = round(ry / snakeDimension) * snakeDimension
+
+    score = 0
+
+    run = True
+
+    while run:
+
+        clock.tick(fps)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    sHor = -1
+                    sVer = 0
+
+                elif event.key == pygame.K_RIGHT:
+                    sHor = 1
+                    sVer = 0
+
+                elif event.key == pygame.K_UP:
+                    sVer = -1
+                    sHor = 0
+
+                elif event.key == pygame.K_DOWN:
+                    sVer = 1
+                    sHor = 0
+
+        x += sHor * sVel
+        y += sVer * sVel
+
+        if (x > W - snakeDimension or x < 0 or y > H - snakeDimension or y < 0):
             run = False
-            pygame.quit()
-            quit()
+            die(score)
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                sHor = -1
-                sVer = 0
+        snakeHead = []
+        snakeHead.append(x)
+        snakeHead.append(y)
+        snake.append(snakeHead)
 
-            elif event.key == pygame.K_RIGHT:
-                sHor = 1
-                sVer = 0
+        if len(snake) > snakeLength:
+            del snake[0]
 
-            elif event.key == pygame.K_UP:
-                sVer = -1
-                sHor = 0
+        if (fx == x and fy == y):
+            rx = random.randint(0, W - snakeDimension)
+            fx = round(rx / snakeDimension) * snakeDimension
 
-            elif event.key == pygame.K_DOWN:
-                sVer = 1
-                sHor = 0
+            ry = random.randint(0, H - snakeDimension)
+            fy = round(ry / snakeDimension) * snakeDimension
 
-    x += sHor * sVel
-    y += sVer * sVel
+            snakeLength += 1
+            score += 1
 
-    if (x > W - snakeDimension or x < 0 or y > H - snakeDimension or y < 0):
-        die()
+        drawScreen(x, y, fx, fy, snakeLength, snake)
 
-    snakeHead = []
-    snakeHead.append(x)
-    snakeHead.append(y)
-    snake.append(snakeHead)
-
-    if len(snake) > snakeLength:
-        del snake[0]
-
-    if (fx == x and fy == y):
-        rx = random.randint(0, W - snakeDimension)
-        fx = round(rx / snakeDimension) * snakeDimension
-
-        ry = random.randint(0, H - snakeDimension)
-        fy = round(ry / snakeDimension) * snakeDimension
-
-        snakeLength += 1
-
-    drawScreen(x, y, fx, fy, snakeLength, snake)
+main()
