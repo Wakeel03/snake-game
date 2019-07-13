@@ -14,11 +14,28 @@ clock = pygame.time.Clock()
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+snakeDimension = 10
+snake = []
+
+x = 100
+y = 100
+
+sVel = 10
+
+sHor = 1
+sVer = 0
+
 run = True
 
-def drawScreen():
+def drawSnake(x, y):
+
+    pygame.draw.rect(win, (BLACK), (x, y, snakeDimension, snakeDimension))
+
+def drawScreen(x, y):
 
     win.fill(WHITE)
+
+    drawSnake(x, y)
 
     pygame.display.update()
 
@@ -34,15 +51,22 @@ while run:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                pass
+                sHor = -1
+                sVer = 0
 
             if event.key == pygame.K_RIGHT:
-                pass
+                sHor = 1
+                sVer = 0
 
             if event.key == pygame.K_UP:
-                pass
+                sVer = -1
+                sHor = 0
 
             if event.key == pygame.K_DOWN:
-                pass
+                sVer = 1
+                sHor = 0
 
-    drawScreen()
+    x += sHor * sVel
+    y += sVer * sVel
+
+    drawScreen(x, y)
