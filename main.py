@@ -33,10 +33,10 @@ def text_object(msg, color):
     txtSurf = font.render(msg, True, color)
     return txtSurf, txtSurf.get_rect()
 
-def display_text(msg, color, y_displace = 0):
+def display_text(msg, color, y_displace = 0, x_displace = 0):
     
     textSurf, textRect = text_object(msg, color)
-    textRect.center = W/2, H/2 + y_displace
+    textRect.center = W/2 + x_displace, H/2 + y_displace
 
     win.blit(textSurf, textRect)
 
@@ -65,9 +65,11 @@ def die(score):
 
         pygame.display.update()
 
-def drawScreen(x, y, fx, fy, snakeLength, snake):
+def drawScreen(x, y, fx, fy, snakeLength, snake, score):
 
     win.fill(WHITE)
+
+    display_text("Score: " + str(score), (0, 255, 0), y_displace=-1 * round(H / 2.2), x_displace=round(W/2.5))
 
     food(fx, fy)
 
@@ -157,6 +159,6 @@ def main():
             snakeLength += 1
             score += 1
 
-        drawScreen(x, y, fx, fy, snakeLength, snake)
+        drawScreen(x, y, fx, fy, snakeLength, snake, score)
 
 main()
