@@ -136,7 +136,13 @@ def main():
         snakeHead = []
         snakeHead.append(x)
         snakeHead.append(y)
+
+        for snk in snake:
+             if (snakeHead[0] == snk[0] and snakeHead[1] == snk[1]):
+                 die(score)
+
         snake.append(snakeHead)
+        
 
         if len(snake) > snakeLength:
             del snake[0]
