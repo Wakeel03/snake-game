@@ -1,164 +1,127 @@
 import pygame
+import time
 import random
 
 pygame.init()
 
-W = 800
-H = 800
-fps = 30
+winW = 500
+winH = 500
 
-win = pygame.display.set_mode((W, H))
-pygame.display.set_caption("Snake Game")
+snakeW = 10
+snakeH = 10
 
-clock = pygame.time.Clock()
+win = pygame.display.set_mode((winW, winH))
+pygame.display.set_caption("Snake")
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+font = pygame.font.SysFont(None, 25)
 
-snakeDimension = 10
+def drawSnake(snake_x, snake_y):
+     pygame.draw.rect(win, (0, 0, 0), (snake_x, snake_y, snakeW, snakeH))
 
-font = pygame.font.SysFont("comicsans", 30, True, False)
+def drawScreen(snake_x, snake_y, food, score, snakeList):
+     win.fill((255, 255, 255))
+     score_text = font.render("Score: " + str(score), True, (0, 255, 0))
+     win.blit(score_text, [400, 30])
+     pygame.draw.rect(win, (255, 0, 0), (food[0], food[1], 10, 10))
+     for snake in snakeList:
+          drawSnake(snake[0], snake[1])
+     pygame.display.update()
 
+def gameOver():
+     GO = True
 
-def food(fx, fy):
-    
-    pygame.draw.rect(win, (BLACK), (fx, fy, snakeDimension, snakeDimension))
+     while GO:
+          win.fill((0, 0, 0))
+          screen_text = font.render("GameOver Press SpaceBar to continue", True, (255, 0, 0))
+          win.blit(screen_text, [winW/3, winH/2])
+          pygame.display.update()
 
-def drawSnake(x, y):
-
-    pygame.draw.rect(win, (BLACK), (x, y, snakeDimension, snakeDimension))
-
-def text_object(msg, color):
-    
-    txtSurf = font.render(msg, True, color)
-    return txtSurf, txtSurf.get_rect()
-
-def display_text(msg, color, y_displace = 0, x_displace = 0):
-    
-    textSurf, textRect = text_object(msg, color)
-    textRect.center = W/2 + x_displace, H/2 + y_displace
-
-    win.blit(textSurf, textRect)
-
-def die(score):
-
-    die = True
-    
-    while die:
-
-        clock.tick(5)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-                quit()
-            
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    die = False
-                    main()
-
-        win.fill(WHITE)
-        display_text("Your Score is " + str(score), BLACK, y_displace = 20)
-        display_text("Press SPACE BAR to continue", BLACK, y_displace = -20)
-
-        pygame.display.update()
-
-def drawScreen(x, y, fx, fy, snakeLength, snake, score):
-
-    win.fill(WHITE)
-
-    display_text("Score: " + str(score), (0, 255, 0), y_displace=-1 * round(H / 2.2), x_displace=round(W/2.5))
-
-    food(fx, fy)
-
-    for snk in snake:
-        drawSnake(snk[0], snk[1])
-
-    pygame.display.update()
+          for event in pygame.event.get():
+               if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                         GO = False
+                         main()
 
 def main():
+     snakeDirX = 1
+     snakeDirY = 1
+     snake_vel = 10
+     moveX = True
+     moveY = False
 
-    x = 100
-    y = 100
+     snakeLength = 1
+     snakeList =[]
 
-    snake = []
-    snakeLength = 1
+     foodX = round(random.randrange(0, winW - 10)/10.0) * 10.0
+     foodY = round(random.randrange(0, winH - 10)/10.0) * 10.0
+     
+     run = True
+     
+     clock = pygame.time.Clock()
 
-    sVel = 10
+     snake_x = 10
+     snake_y = 10
 
-    sHor = 1
-    sVer = 0
+     score = 0
+     
+     while run:
+          clock.tick(15)
 
-    rx = random.randint(0, W - snakeDimension)
-    fx = round(rx / snakeDimension) * snakeDimension
+          for event in pygame.event.get():
+               if event.type == pygame.QUIT:
+                    run = False
+               if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                         snakeDirX = -1
+                         moveX = True
+                         moveY = False
+                         
+                    elif event.key == pygame.K_RIGHT:
+                         snakeDirX = 1
+                         moveX = True
+                         moveY = False
+                         
+                    elif event.key == pygame.K_UP:
+                         snakeDirY = -1
+                         moveX = False
+                         moveY = True
+                         
+                    elif event.key == pygame.K_DOWN:
+                         snakeDirY = 1
+                         moveX = False
+                         moveY = True
 
-    ry = random.randint(0, H - snakeDimension)
-    fy = round(ry / snakeDimension) * snakeDimension
+          if moveX:
+               snake_x += snake_vel * snakeDirX
+          else:
+               snake_y += snake_vel * snakeDirY
 
-    score = 0
+          food = [foodX, foodY]
 
-    run = True
+          snakeHead = [snake_x, snake_y]
+          snakeList.append(snakeHead)
 
-    while run:
+          if len(snakeList) > snakeLength:
+               del snakeList[0]
 
-        clock.tick(fps)
+          for snake in snakeList[:-1]:
+               if snakeHead[0] == snake[0] and snakeHead[1] == snake[1]:
+                    run = False
+                    gameOver()
+          
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-                quit()
+          if snake_x == food[0] and snake_y == food[1]:
+               foodX = round(random.randrange(0, winW - 10)/10.0) * 10.0
+               foodY = round(random.randrange(0, winH - 10)/10.0) * 10.0
+               snakeLength += 1
+               score += 1
+          
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    sHor = -1
-                    sVer = 0
+          if snake_x > winW or snake_x < 0 or snake_y > winH or snake_y < 0:
+               run = False
+               gameOver()
 
-                elif event.key == pygame.K_RIGHT:
-                    sHor = 1
-                    sVer = 0
-
-                elif event.key == pygame.K_UP:
-                    sVer = -1
-                    sHor = 0
-
-                elif event.key == pygame.K_DOWN:
-                    sVer = 1
-                    sHor = 0
-
-        x += sHor * sVel
-        y += sVer * sVel
-
-        if (x > W - snakeDimension or x < 0 or y > H - snakeDimension or y < 0):
-            run = False
-            die(score)
-
-        snakeHead = []
-        snakeHead.append(x)
-        snakeHead.append(y)
-
-        for snk in snake:
-             if (snakeHead[0] == snk[0] and snakeHead[1] == snk[1]):
-                 die(score)
-
-        snake.append(snakeHead)
-        
-
-        if len(snake) > snakeLength:
-            del snake[0]
-
-        if (fx == x and fy == y):
-            rx = random.randint(0, W - snakeDimension)
-            fx = round(rx / snakeDimension) * snakeDimension
-
-            ry = random.randint(0, H - snakeDimension)
-            fy = round(ry / snakeDimension) * snakeDimension
-
-            snakeLength += 1
-            score += 1
-
-        drawScreen(x, y, fx, fy, snakeLength, snake, score)
+          drawScreen(snake_x, snake_y, food, score, snakeList)
 
 main()
+
